@@ -20,6 +20,7 @@ Route::get('/', function () {
 
 Route::resource('products', 'ProductController');
 Route::resource('carts', 'CartController')->only(['index']);
+Route::resource('orders', 'OrderController')->only(['create', 'store']);
 Route::resource('products.carts', 'ProductCartController')->only(['store', 'destroy']);
 Auth::routes();
 

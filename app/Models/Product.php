@@ -32,4 +32,9 @@ class Product extends Model
     {
         return $query->where('status', 'available');
     }
+
+    public function getTotalAttribute()
+    {
+        return $this->price * $this->pivot->quantity;
+    }
 }
