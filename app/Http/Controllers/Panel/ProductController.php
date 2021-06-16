@@ -3,41 +3,66 @@
 namespace App\Http\Controllers\Panel;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductRequest;
+use App\Models\PanelProduct;
+use Illuminate\Support\Facades\File;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        return 'List of products';
+        $products = PanelProduct::without('images')->get();
+        return view('products.index')->with(['products' => $products]);
     }
 
     public function create()
     {
-        return 'Form for create product';
+        return view('products.create');
     }
 
-    public function store()
+    public function store(ProductRequest $request)
     {
-        //
+        $product = PanelProduct::create($request->validated());
+        foreach ($request->images as $image) {
+            $product->images()->create([
+                'path' => 'images/' . $image->store('products', 'images'),
+            ]);
+        }
+        return redirect()->route('products.index')->withSuccess("New product {$product->title} was created");
+        // ->with(['success' => "New product with id {$product->id} was created"]);
     }
 
-    public function show($product)
+    public function show(PanelProduct $product)
     {
-        return "Showing the product {$product}";
+        return view('products.show')->with(['product' => $product]);
     }
 
-    public function edit($product)
+    public function edit(PanelProduct $product)
     {
-        return "Form for editing the product {$product}";
+        return view('products.edit')->with(['product' => $product]);
     }
 
-    public function update($product)
+    public function update(ProductRequest $request, PanelProduct $product)
     {
-        //
+        $product->update($request->validated());
+        if ($request->hasFile('images')) {
+            foreach ($product->images as $image) {
+                $path = storage_path("app/public/{$image->path}");
+                File::delete($path);
+                $image->delete();
+            }
+            foreach ($request->images as $image) {
+                $product->images()->create([
+                    'path' => 'images/' . $image->store('products', 'images'),
+                ]);
+            }
+        }
+        return redirect()->route('products.index')->withSuccess("The product with id {$product->id} was updated");
     }
 
-    public function destroy($product)
+    public function destroy(PanelProduct $product)
     {
-        //
+        $product->delete();
+        return redirect()->route('products.index')->withSuccess("The product was removed");
     }
 }
