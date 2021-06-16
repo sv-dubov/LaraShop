@@ -12,6 +12,7 @@ class Product extends Model
 
     protected $table = 'products';
     protected $fillable = ['title', 'description', 'price', 'stock', 'status'];
+    protected $with = ['images'];
 
     /**
      * The "booted" method of the model.

@@ -14,9 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'MainController@index')->name('main');
 
 Route::resource('carts', 'CartController')->only(['index']);
 Route::resource('orders', 'OrderController')->only(['create', 'store']);
